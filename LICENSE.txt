@@ -1,0 +1,5 @@
+LICENSE: 
+
+This contains https://android.googlesource.com/platform/frameworks/volley/ jar which is being used here.
+
+I do not own this https://android.googlesource.com/platform/frameworks/volley/ code.
