@@ -9,13 +9,10 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 
 public class MainActivity extends Activity {
-	private LinearLayout homeLayout;
-	private EditText searchTextBox;
-	private Button searchButton;
-	
 	//handler
 	private void handleButtonClick(){
 		//launch the activity with search term set.
+        EditText searchTextBox = (EditText)findViewById(R.id.searchInput);
 		String searchText = searchTextBox.getText().toString();
 		if(searchText == null || searchText.length() == 0){
 			return;
@@ -24,30 +21,19 @@ public class MainActivity extends Activity {
 		i.putExtra("SEARCH_TEXT", searchText);
 		startActivity(i);
 	}
-	private void createHomeLayout(){
-		if(homeLayout == null) {
-			homeLayout = new LinearLayout(this);
-			homeLayout.setOrientation(1);
-			searchTextBox = new EditText(this);
-			searchTextBox.setHint(R.string.searchText_hint);
-			searchTextBox.setLines(2);
-			searchButton = new Button(this);
-			searchButton.setText(R.string.searchButton_text);
-			homeLayout.addView(searchTextBox, 0);
-			homeLayout.addView(searchButton, 1);
-			searchButton.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					handleButtonClick();
-				}
-			});
-		}
-	}
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        createHomeLayout();
-        setContentView(homeLayout);
+        //createHomeLayout();
+        //setContentView(homeLayout);
+        setContentView(R.layout.activity_main);
+        Button b = (Button)findViewById(R.id.searchButton);
+        b.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                handleButtonClick();
+            }
+        });
     }
 }
