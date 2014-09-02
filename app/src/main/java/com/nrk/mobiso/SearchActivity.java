@@ -36,11 +36,9 @@ public class SearchActivity extends Activity {
 		ERROR,
 		EMPTY
 	};
-	private LinearLayout searchLayout;
+
 	private SearchResultAdapter adapter;
 	private ListView searchResultList;
-	private ProgressBar progressBar;
-	private TextView statusText;
 	private String currentSearchTerm;
 	private String URL = "http://api.stackexchange.com/2.2/search/advanced?order=desc&sort=relevance&site=stackoverflow";
 	private int RESULT_LIMIT = 30;
@@ -59,8 +57,11 @@ public class SearchActivity extends Activity {
 			o.getString("body")
 		);
 	}
-	
+
 	private void updateView(ResultStatus status){
+        ProgressBar progressBar = (ProgressBar) findViewById(R.id.searchActivityProgress);
+        ListView searchResultList = (ListView) findViewById(R.id.searchResultsList);
+        TextView statusText = (TextView) findViewById(R.id.searchStatusText);
 		switch(status){
 			case PROGRESS:
 				progressBar.setVisibility(View.VISIBLE);
@@ -142,28 +143,9 @@ public class SearchActivity extends Activity {
 		updateView(ResultStatus.PROGRESS);
 	}
 
-	private void createLoading(){
-		progressBar = new ProgressBar(this);
-		progressBar.setLayoutParams(new LayoutParams(
-			LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT
-		));
-		progressBar.setIndeterminate(true);
-		searchLayout.addView(progressBar);
-	}
-	
-	private void createEmpty(){
-		statusText = new TextView(this);
-		statusText.setLayoutParams(new LayoutParams(
-			LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT
-		));
-		statusText.setGravity(Gravity.CENTER);
-		statusText.setText("");
-		searchLayout.addView(statusText);
-	}
-	
-	private void createListView() {
-		if(searchResultList == null) {
-			searchResultList = new ListView(this);
+	private void setListAdapter() {
+		if(adapter == null) {
+			searchResultList = (ListView) findViewById(R.id.searchResultsList);
 			adapter = 
 				new SearchResultAdapter(this, R.layout.search_result_row, parsedResult);
 			searchResultList.setOnItemClickListener(new OnItemClickListener() {
@@ -183,15 +165,6 @@ public class SearchActivity extends Activity {
 				}
 			});
 			searchResultList.setAdapter(adapter);
-		}
-	}
-	private void createSearchLayout(){
-		if(searchLayout == null){
-			searchLayout = new LinearLayout(this);
-			createLoading();
-			createEmpty();
-			createListView();
-			searchLayout.addView(searchResultList);
 		}
 	}
 	
@@ -215,10 +188,10 @@ public class SearchActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		questionDAO = new QuestionDAO(this);
-		
 		currentSearchTerm = getIntent().getStringExtra("SEARCH_TEXT");
-		createSearchLayout();
-		setContentView(searchLayout);
+		//createSearchLayout();
+		setContentView(R.layout.activity_search);
+        setListAdapter();
 		if(NetworkStatus.isConnected(this)){
 			makeRequest();
 		} else {
