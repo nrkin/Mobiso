@@ -32,11 +32,8 @@ public class AnswerActivity extends Activity {
 		ERROR,
 		EMPTY
 	};
-	private LinearLayout answerLayout;
+
 	private AnswersAdapter adapter;
-	private ListView answersList;
-	private ProgressBar progressBar;
-	private TextView statusText;
 	private Question currentQuestion;
 	private String URL = "http://api.stackexchange.com/2.2/questions/";
 	private String URLOptions = "/answers?order=desc&site=stackoverflow&filter=withbody";
@@ -56,6 +53,9 @@ public class AnswerActivity extends Activity {
 	}
 	
 	private void updateView(ResultStatus status){
+        ProgressBar progressBar = (ProgressBar)findViewById(R.id.answerActivityProgress);
+        TextView statusText = (TextView)findViewById(R.id.answerStatusText);
+        ListView answersList = (ListView)findViewById(R.id.answersList);
 		switch(status){
 			case PROGRESS:
 				progressBar.setVisibility(View.VISIBLE);
@@ -134,53 +134,15 @@ public class AnswerActivity extends Activity {
 		updateView(ResultStatus.PROGRESS);
 	}
 
-	private void createLoading(){
-		progressBar = new ProgressBar(this);
-		progressBar.setLayoutParams(new LayoutParams(
-			LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT
-		));
-		progressBar.setIndeterminate(true);
-		answerLayout.addView(progressBar, 2);
-	}
-	
-	private void createEmpty(){
-		statusText = new TextView(this);
-		statusText.setLayoutParams(new LayoutParams(
-			LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT
-		));
-		statusText.setGravity(Gravity.CENTER);
-		statusText.setText("");
-		answerLayout.addView(statusText, 1);
-	}
-	
-	private void createAnswerListView() {
-		if(answersList == null) {
-			answersList = new ListView(this);
-			createQuestionView();
+	private void setupAnswersList() {
+        ListView answersList = (ListView)findViewById(R.id.answersList);
+        TextView questionView = new TextView(this);
+        questionView.setText(Html.fromHtml(currentQuestion.contents));
+        answersList.addHeaderView(questionView);
+		if(adapter == null) {
 			adapter = 
 				new AnswersAdapter(this, R.layout.search_answer, parsedResult);
 			answersList.setAdapter(adapter);
-			answerLayout.addView(answersList, 0);
-		}
-	}
-
-	private void createQuestionView(){
-		TextView questionView = new TextView(this);
-		questionView.setText(Html.fromHtml(currentQuestion.contents));
-		answersList.addHeaderView(questionView);
-	}
-
-	private void createAnswerLayout(){
-		if(answerLayout == null){
-			answerLayout = new LinearLayout(this);
-			answerLayout.setLayoutParams(new LayoutParams(
-				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT
-			));
-			answerLayout.setOrientation(1);
-			//createQuestionView();
-			createAnswerListView();
-			createEmpty();
-			createLoading();
 		}
 	}
 	
@@ -205,9 +167,9 @@ public class AnswerActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		currentQuestion = 
 			(Question)getIntent().getExtras().getParcelable("CURRENT_QUESTION");
-		createAnswerLayout();
-		setContentView(answerLayout);
+        setContentView(R.layout.activity_answers);
 		answerDAO = new AnswerDAO(this);
+        setupAnswersList();
 		if(NetworkStatus.isConnected(this)){
 			makeRequest();
 		} else {
